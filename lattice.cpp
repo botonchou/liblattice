@@ -6,8 +6,6 @@ void Lattice::print() const {
 bool Lattice::saveToVocabulary(map<string, bool>& vocabulary) const {
 }
 
-bool Lattice::saveToDatabase(SQLiteDatabase& db) const {
-}
 // ******************************
 // ***** HTK Lattice Parser *****
 // ******************************
@@ -88,78 +86,6 @@ void HTKLattice::print() const {
     cout << "J=" << i << "\t" << this->_arcs[i] << endl;
 }
 
-void HTKLattice::addNewLatticeToDatabase(SQLiteDatabase& db, string tableName) const {
-  char sql[512];
-
-  const char* CREATE_LATTICE_TABLE_SQL = "CREATE TABLE %s (arc_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, prev_arc_id INTEGER NOT NULL, word_id INTEGER NOT NULL, likelihood REAL NOT NULL, begin_time INTEGER NOT NULL, end_time INTEGER NOT NULL, CONSTRAINT %s_prev_arc_id_fk FOREIGN KEY (prev_arc_id) REFERENCES %s (arc_id));";
-  // , CONSTRAINT vocabulary_word_id_fk FOREIGN KEY (word_id) REFERENCES vocabulary (word_id)
-
-  if(db.hasTable(tableName)) {
-    sprintf(sql, "DROP TABLE %s;", tableName.c_str());
-    db.exec(sql);
-  }
-
-  sprintf(sql, CREATE_LATTICE_TABLE_SQL, tableName.c_str(), tableName.c_str(), tableName.c_str());
-  db.exec(sql);
-
-  sprintf( sql, "SELECT u_id FROM utterances WHERE doc_id = '%s';", tableName.c_str() );
-  SQLiteTable result = db.get(sql);
-
-  if(result.getRows() <= 1)
-    sprintf( sql, "INSERT INTO utterances (doc_id, has_word_lattice) VALUES ('%s', 1);", this->getValidUtteranceId().c_str() ); 
-  db.exec(sql);
-
-}
-
-void HTKLattice::createUtteranceTableIfNotExist(SQLiteDatabase& db) const {
-  // Check if utterances exists OR NOT
-  if(!db.hasTable("utterances"))
-    db.exec("CREATE TABLE utterances (u_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, doc_id int NOT NULL, has_word_lattice bool NOT NULL);");
-}
-
-string HTKLattice::getTableName() const {
-  return "u_" + this->getValidUtteranceId() + "_word_lattice";
-}
-
-void HTKLattice::createInsertSQL(char* sql, const int& i) const {
-  static const char* INSERT_SQL_TEMPLATE = "INSERT INTO %s (arc_id, prev_arc_id, word_id, likelihood, begin_time, end_time) VALUES (%d, %d, '%s', %f, %d, %d);";
-
-  const Arc& arc = _arcs[i];
-  const Node& node = _nodes[arc.getEndNode()];
-  sprintf( sql, 
-      INSERT_SQL_TEMPLATE, 
-      getTableName().c_str(), 
-      i, 
-      this->getPreviousArcIndex(i), 
-      node.getWord().c_str(), 
-      this->computeLikelihood(arc),
-      (int) (_nodes[arc.getStartNode()].getTime()*1000),
-      (int) (_nodes[arc.getEndNode()].getTime()*1000) 
-  );
-}
-
-bool HTKLattice::saveToDatabase(SQLiteDatabase& db) const {
-  this->createUtteranceTableIfNotExist(db);
-
-  // Build table name
-  addNewLatticeToDatabase(db, getTableName());
-
-  char sql[512];
-  createInsertSQL(sql, 0);
-  db.exec(sql);
-
-  db.exec("PRAGMA foreign_keys = ON;");
-  db.exec("BEGIN TRANSACTION;");
-  for(int i=1; i<_arcs.size(); ++i) {
-    createInsertSQL(sql, i);
-    db.exec(sql);
-  }
-  db.exec("END TRANSACTION;");
-
-  sprintf(sql, "UPDATE %s SET word_id=(SELECT v.word_id FROM vocabulary AS v WHERE %s.word_id == v.word);", getTableName().c_str(), getTableName().c_str());
-  db.exec(sql);
-}
-
 bool HTKLattice::saveToVocabulary(map<string, bool>& vocabulary) const {
   for(int i=0; i<_nodes.size(); ++i)
     vocabulary[_nodes[i].getWord()] = true;
@@ -170,16 +96,6 @@ size_t HTKLattice::getPreviousArcIndex(size_t idx) const {
     if(_arcs[i].getEndNode() == _arcs[idx].getStartNode())
       return i;
   return 0;
-}
-
-string HTKLattice::getValidUtteranceId() const {
-  string utteranceId = _header.utterance.substr(_header.utterance.find_last_of("/") + 1);
-  utteranceId = utteranceId.substr(0, utteranceId.find_last_of("."));
-
-  for(int i=0; i<utteranceId.size(); ++i)
-    if(utteranceId[i] == '-' || utteranceId[i] == '.')
-      utteranceId[i] = '_';
-  return utteranceId;
 }
 
 Likelihood HTKLattice::computeLikelihood(const Arc& arc) const {

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <map>
+#include <iomanip>
 
 #include <stdio.h>
 #include <sqlite3.h>
@@ -13,12 +14,12 @@ void retrieve(Corpus& corpus, const char* query);
 
 int main(int argc, char* argv[]) {
 
-  //SQLiteDatabase db("corpus.db");
   Corpus corpus("corpus.db");
   //processLattice(corpus);
 
   //InvertedIndex invertedIndex;
   //invertedIndex.buildFrom(corpus);
+
   fstream file("query", ios::in);
 
   vector<string> queries;
@@ -41,7 +42,14 @@ void retrieve(Corpus& corpus, const char* query) {
   //sprintf(sql, "SELECT SUM(i.likelihood)/COUNT(i.arc_id) AS e FROM inverted_index i NATURAL JOIN vocabulary v WHERE v.word='%s' GROUP BY i.u_id ORDER BY e;", query);
   SQLiteTable result = corpus.getDatabase().get(sql);
 
-  result.print();
+  ///result.print();
+
+  cout << fixed << setprecision(5);
+  for (int i=1; i < result.getRows(); ++i) {
+    cout << result.get(i*result.getCols()) << "\t";
+    cout << str2double(result.get(i*result.getCols() + 1)) << "\t" << endl;
+  }
+
 }
 
 void processLattice(Corpus& corpus) {
@@ -72,7 +80,6 @@ void processLattice(Corpus& corpus) {
   for(int i=0; i<lattices.size(); ++i) {
     cout << "Processing " << i << "th lattice" << endl;
     corpus.add(lattices[i]);
-    //lattices[i]->saveToDatabase(db);
   }
 }
 

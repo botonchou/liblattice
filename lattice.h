@@ -21,7 +21,6 @@ using namespace std;
 class Lattice {
 public:
   virtual void print() const;
-  virtual bool saveToDatabase(SQLiteDatabase& db) const;
   virtual bool saveToVocabulary(map<string, bool>& vocabulary) const;
 };
 
@@ -106,15 +105,9 @@ public:
   const HTKLattice::Arc& getArc(size_t idx) const { return _arcs[idx]; }
 
   size_t getPreviousArcIndex(size_t idx) const;
-  string getValidUtteranceId() const;
   Likelihood computeLikelihood(const Arc& arc) const;
-  void addNewLatticeToDatabase(SQLiteDatabase& db, string tableName) const;
-  void createUtteranceTableIfNotExist(SQLiteDatabase& db) const;
-  string getTableName() const;
 
   void print() const;
-  void createInsertSQL(char* sql, const int& i) const;
-  bool saveToDatabase(SQLiteDatabase& db) const;
   bool saveToVocabulary(map<string, bool>& vocabulary) const;
 
 private:
@@ -132,7 +125,6 @@ class TTKLattice : public Lattice {
 public:
   friend class TTKLatticeParser;
   void print() const;
-  bool saveToDatabase(SQLiteDatabase& db) const {}
   bool saveToVocabulary(map<string, bool>& vocabulary) const {}
 
   class Arc {
