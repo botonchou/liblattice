@@ -3,23 +3,42 @@
 #include <iostream>
 #include <sqlite3.h>
 #include <cstdio>
+#include <vector>
 using namespace std;
 
 class SQLiteTable {
   public:
-    SQLiteTable(): _table(NULL) {}
-    ~SQLiteTable();
+    SQLiteTable() {
+    }
 
-    int getCols() const { return _cols; }
-    int getRows() const { return _rows; }
-    char* get(int idx) { return _table[idx]; }
-    void print() const;
+    virtual int size() const = 0;
     friend class SQLiteDatabase;
-  private:
-    int _cols;
-    int _rows;
-    char** _table;
+
+    void print() const;
+    virtual int callback(int argc, char **argv, char **azColName);
+    static int callback(void *sqlTable, int argc, char **argv, char **azColName);
 };
+
+template <typename T>
+class List : public SQLiteTable {
+public:
+  List() {}
+
+  int size() const { return _data.size(); }
+
+  T& operator[] (size_t idx) { return _data[idx]; }
+  const T& operator[] (size_t idx) const { return _data[idx]; }
+  int callback(int argc, char **argv, char **azColName) {
+    _data.push_back(T(argc, argv));
+    return 0;
+  }
+  
+private:
+  vector<T> _data;
+};
+
+template <>
+int List<string>::callback(int argc, char **argv, char **azColName);
 
 class SQLiteDatabase {
 public:
@@ -28,9 +47,10 @@ public:
 
   SQLiteDatabase(sqlite3* db): _db(db) {}
 
-  bool exec(const char* query, int (*xCallback)(void*,int,char**,char**) = NULL ) const;
-  SQLiteTable get(char* query) const;
-  bool hasTable(string tableName) const;
+  bool exec(string statement, void* table = NULL) const;
+  void dropTable(string tableName) const;
+  void beginTransaction() const;
+  void endTransaction() const;
 
 private:
   SQLiteDatabase() {}

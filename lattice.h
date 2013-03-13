@@ -20,8 +20,9 @@ using namespace std;
 // ***************************
 class Lattice {
 public:
-  virtual void print() const;
-  virtual bool saveToVocabulary(map<string, bool>& vocabulary) const;
+  virtual void print() const = 0;
+  virtual bool saveToVocabulary(map<string, bool>& vocabulary) const = 0;
+  virtual vector<string> getWordSet() const = 0;
 };
 
 typedef string Word;
@@ -109,6 +110,7 @@ public:
 
   void print() const;
   bool saveToVocabulary(map<string, bool>& vocabulary) const;
+  vector<string> getWordSet() const;
 
 private:
   HTKLattice() {}
@@ -126,6 +128,7 @@ public:
   friend class TTKLatticeParser;
   void print() const;
   bool saveToVocabulary(map<string, bool>& vocabulary) const {}
+  vector<string> getWordSet() const {}
 
   class Arc {
     typedef int Time;

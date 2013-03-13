@@ -1,22 +1,14 @@
 #include <utility.h>
 
-double str2double(string str) {
-  double d;
-  stringstream ss;
-  ss << str;
-  ss >> d;
-  return d;
+double str2double(const string& str) {
+  return atof(str.c_str());
 }
 
-float str2float(string str) {
-  float f;
-  stringstream ss;
-  ss << str;
-  ss >> f;
-  return f;
+float str2float(const string& str) {
+  return atof(str.c_str());
 }
 
-int str2int(string str) {
+int str2int(const string& str) {
   return atoi(str.c_str());
 }
 

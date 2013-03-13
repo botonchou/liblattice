@@ -6,9 +6,9 @@
 #include <cstdlib>
 using namespace std;
 
-int str2int(string str);
-float str2float(string str);
-double str2double(string str);
+int str2int(const string& str);
+float str2float(const string& str);
+double str2double(const string& str);
 string getValueStr(string& str);
 
 #endif // _UTILITY_H_

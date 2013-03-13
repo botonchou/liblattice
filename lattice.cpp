@@ -1,11 +1,5 @@
 #include <lattice.h>
 
-void Lattice::print() const {
-}
-
-bool Lattice::saveToVocabulary(map<string, bool>& vocabulary) const {
-}
-
 // ******************************
 // ***** HTK Lattice Parser *****
 // ******************************
@@ -18,23 +12,40 @@ string HTKLatticeParser::getNext(iostream& file) {
 HTKLattice::Node HTKLatticeParser::createNode(fstream& file) {
   getNext(file);
   HTKLattice::Node node;
+  static char str[128];
+  
+  file >> str;
+  node._time = atof(str + 2);
+  
+  file >> str;
+  node._word = str + 2;
 
-  node._time = str2float(getNext(file));
+  file >> str;
+  node._variation = atoi(str + 2);
+  
+  /*node._time = str2float(getNext(file));
   node._word = getNext(file);
-  node._variation = str2int(getNext(file));
+  node._variation = str2int(getNext(file));*/
   return node;
 }
 
 HTKLattice::Arc HTKLatticeParser::createArc(fstream& file) {
   // Handle different version of HTK lattice format
-  string dumb;
-  while(file >> dumb && dumb[0] != 'J');
+  static char str[256];
+  while(file >> str && str[0] != 'J');
 
   HTKLattice::Arc arc;
-  arc._startNode = str2int(getNext(file));
-  arc._endNode = str2int(getNext(file));
-  arc._acScore = str2float(getNext(file));
-  arc._lmScore = str2float(getNext(file));
+  file >> str;
+  arc._startNode = atoi(str + 2);
+
+  file >> str;
+  arc._endNode = atoi(str + 2);
+
+  file >> str;
+  arc._acScore = atof(str + 2);
+
+  file >> str;
+  arc._lmScore = atof(str + 2);
 
   return arc;
 }
@@ -49,7 +60,9 @@ Lattice* HTKLatticeParser::createLattice(string filename) {
   header.lmname	    = getNext(file);
   header.lmscale    = str2float(getNext(file));
   header.wdpenalty  = str2float(getNext(file));
+
   //getNext(file);    // get prScale
+
   header.acscale    = str2float(getNext(file));
   header.vocab	    = getNext(file);
   header.hmms	    = getNext(file);
@@ -89,6 +102,13 @@ void HTKLattice::print() const {
 bool HTKLattice::saveToVocabulary(map<string, bool>& vocabulary) const {
   for(int i=0; i<_nodes.size(); ++i)
     vocabulary[_nodes[i].getWord()] = true;
+}
+
+vector<string> HTKLattice::getWordSet() const {
+  vector<string> wordSet(_nodes.size());
+  for(int i=0; i<_nodes.size(); ++i)
+    wordSet[i] = _nodes[i].getWord();
+  return wordSet;
 }
 
 size_t HTKLattice::getPreviousArcIndex(size_t idx) const {
