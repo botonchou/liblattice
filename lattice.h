@@ -15,14 +15,28 @@
 #include <utility.h>
 using namespace std;
 
+class HypothesisRegion {
+public:
+  HypothesisRegion();
+  HypothesisRegion(int argc, char** argv);
+  friend ostream& operator << (ostream& os, const HypothesisRegion& hr);
+
+  int u_id;
+  int arc_id;
+  int prev_arc_id;
+  double likelihood;
+};
+
+ostream& operator << (ostream& os, const HypothesisRegion& hr);
+
 // ***************************
 // *****     Lattice     *****
 // ***************************
 class Lattice {
 public:
-  virtual void print() const;
-  virtual bool saveToDatabase(SQLiteDatabase& db) const;
-  virtual bool saveToVocabulary(map<string, bool>& vocabulary) const;
+  virtual void print() const = 0;
+  virtual bool saveToVocabulary(map<string, bool>& vocabulary) const = 0;
+  virtual vector<string> getWordSet() const = 0;
 };
 
 typedef string Word;
@@ -106,16 +120,11 @@ public:
   const HTKLattice::Arc& getArc(size_t idx) const { return _arcs[idx]; }
 
   size_t getPreviousArcIndex(size_t idx) const;
-  string getValidUtteranceId() const;
   Likelihood computeLikelihood(const Arc& arc) const;
-  void addNewLatticeToDatabase(SQLiteDatabase& db, string tableName) const;
-  void createUtteranceTableIfNotExist(SQLiteDatabase& db) const;
-  string getTableName() const;
 
   void print() const;
-  void createInsertSQL(char* sql, const int& i) const;
-  bool saveToDatabase(SQLiteDatabase& db) const;
   bool saveToVocabulary(map<string, bool>& vocabulary) const;
+  vector<string> getWordSet() const;
 
 private:
   HTKLattice() {}
@@ -132,8 +141,8 @@ class TTKLattice : public Lattice {
 public:
   friend class TTKLatticeParser;
   void print() const;
-  bool saveToDatabase(SQLiteDatabase& db) const {}
   bool saveToVocabulary(map<string, bool>& vocabulary) const {}
+  vector<string> getWordSet() const {}
 
   class Arc {
     typedef int Time;

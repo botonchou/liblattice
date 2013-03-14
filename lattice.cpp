@@ -1,12 +1,15 @@
 #include <lattice.h>
 
-void Lattice::print() const {
+HypothesisRegion::HypothesisRegion(): u_id(0), arc_id(0), prev_arc_id(0), likelihood(0) {
 }
-
-bool Lattice::saveToVocabulary(map<string, bool>& vocabulary) const {
+HypothesisRegion::HypothesisRegion(int argc, char** argv): u_id(0), arc_id(0), prev_arc_id(0), likelihood(0) {
+  u_id = atoi(argv[0]);
+  arc_id = atoi(argv[1]);
+  prev_arc_id = atoi(argv[2]);
+  likelihood = atof(argv[3]);
 }
-
-bool Lattice::saveToDatabase(SQLiteDatabase& db) const {
+ostream& operator << (ostream& os, const HypothesisRegion& hr) {
+  return os << hr.u_id << "\t" << hr.arc_id << "\t" << hr.prev_arc_id << "\t" << hr.likelihood;
 }
 // ******************************
 // ***** HTK Lattice Parser *****
@@ -20,23 +23,40 @@ string HTKLatticeParser::getNext(iostream& file) {
 HTKLattice::Node HTKLatticeParser::createNode(fstream& file) {
   getNext(file);
   HTKLattice::Node node;
+  static char str[128];
+  
+  file >> str;
+  node._time = atof(str + 2);
+  
+  file >> str;
+  node._word = str + 2;
 
-  node._time = str2float(getNext(file));
+  file >> str;
+  node._variation = atoi(str + 2);
+  
+  /*node._time = str2float(getNext(file));
   node._word = getNext(file);
-  node._variation = str2int(getNext(file));
+  node._variation = str2int(getNext(file));*/
   return node;
 }
 
 HTKLattice::Arc HTKLatticeParser::createArc(fstream& file) {
   // Handle different version of HTK lattice format
-  string dumb;
-  while(file >> dumb && dumb[0] != 'J');
+  static char str[256];
+  while(file >> str && str[0] != 'J');
 
   HTKLattice::Arc arc;
-  arc._startNode = str2int(getNext(file));
-  arc._endNode = str2int(getNext(file));
-  arc._acScore = str2float(getNext(file));
-  arc._lmScore = str2float(getNext(file));
+  file >> str;
+  arc._startNode = atoi(str + 2);
+
+  file >> str;
+  arc._endNode = atoi(str + 2);
+
+  file >> str;
+  arc._acScore = atof(str + 2);
+
+  file >> str;
+  arc._lmScore = atof(str + 2);
 
   return arc;
 }
@@ -51,7 +71,9 @@ Lattice* HTKLatticeParser::createLattice(string filename) {
   header.lmname	    = getNext(file);
   header.lmscale    = str2float(getNext(file));
   header.wdpenalty  = str2float(getNext(file));
+
   //getNext(file);    // get prScale
+
   header.acscale    = str2float(getNext(file));
   header.vocab	    = getNext(file);
   header.hmms	    = getNext(file);
@@ -88,81 +110,16 @@ void HTKLattice::print() const {
     cout << "J=" << i << "\t" << this->_arcs[i] << endl;
 }
 
-void HTKLattice::addNewLatticeToDatabase(SQLiteDatabase& db, string tableName) const {
-  char sql[512];
-
-  const char* CREATE_LATTICE_TABLE_SQL = "CREATE TABLE %s (arc_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, prev_arc_id INTEGER NOT NULL, word_id INTEGER NOT NULL, likelihood REAL NOT NULL, begin_time INTEGER NOT NULL, end_time INTEGER NOT NULL, CONSTRAINT %s_prev_arc_id_fk FOREIGN KEY (prev_arc_id) REFERENCES %s (arc_id));";
-  // , CONSTRAINT vocabulary_word_id_fk FOREIGN KEY (word_id) REFERENCES vocabulary (word_id)
-
-  if(db.hasTable(tableName)) {
-    sprintf(sql, "DROP TABLE %s;", tableName.c_str());
-    db.exec(sql);
-  }
-
-  sprintf(sql, CREATE_LATTICE_TABLE_SQL, tableName.c_str(), tableName.c_str(), tableName.c_str());
-  db.exec(sql);
-
-  sprintf( sql, "SELECT u_id FROM utterances WHERE doc_id = '%s';", tableName.c_str() );
-  SQLiteTable result = db.get(sql);
-
-  if(result.getRows() <= 1)
-    sprintf( sql, "INSERT INTO utterances (doc_id, has_word_lattice) VALUES ('%s', 1);", this->getValidUtteranceId().c_str() ); 
-  db.exec(sql);
-
-}
-
-void HTKLattice::createUtteranceTableIfNotExist(SQLiteDatabase& db) const {
-  // Check if utterances exists OR NOT
-  if(!db.hasTable("utterances"))
-    db.exec("CREATE TABLE utterances (u_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, doc_id int NOT NULL, has_word_lattice bool NOT NULL);");
-}
-
-string HTKLattice::getTableName() const {
-  return "u_" + this->getValidUtteranceId() + "_word_lattice";
-}
-
-void HTKLattice::createInsertSQL(char* sql, const int& i) const {
-  static const char* INSERT_SQL_TEMPLATE = "INSERT INTO %s (arc_id, prev_arc_id, word_id, likelihood, begin_time, end_time) VALUES (%d, %d, '%s', %f, %d, %d);";
-
-  const Arc& arc = _arcs[i];
-  const Node& node = _nodes[arc.getEndNode()];
-  sprintf( sql, 
-      INSERT_SQL_TEMPLATE, 
-      getTableName().c_str(), 
-      i, 
-      this->getPreviousArcIndex(i), 
-      node.getWord().c_str(), 
-      this->computeLikelihood(arc),
-      (int) (_nodes[arc.getStartNode()].getTime()*1000),
-      (int) (_nodes[arc.getEndNode()].getTime()*1000) 
-  );
-}
-
-bool HTKLattice::saveToDatabase(SQLiteDatabase& db) const {
-  this->createUtteranceTableIfNotExist(db);
-
-  // Build table name
-  addNewLatticeToDatabase(db, getTableName());
-
-  char sql[512];
-  createInsertSQL(sql, 0);
-  db.exec(sql);
-
-  db.exec("PRAGMA foreign_keys = ON;");
-  db.exec("BEGIN TRANSACTION;");
-  for(int i=1; i<_arcs.size(); ++i) {
-    createInsertSQL(sql, i);
-    db.exec(sql);
-  }
-  db.exec("END TRANSACTION;");
-
-  sprintf(sql, "UPDATE %s SET word_id=(SELECT v.word_id FROM vocabulary AS v WHERE %s.word_id == v.word);", getTableName().c_str(), getTableName().c_str());
-  db.exec(sql);
-}
-
 bool HTKLattice::saveToVocabulary(map<string, bool>& vocabulary) const {
   for(int i=0; i<_nodes.size(); ++i)
     vocabulary[_nodes[i].getWord()] = true;
+}
+
+vector<string> HTKLattice::getWordSet() const {
+  vector<string> wordSet(_nodes.size());
+  for(int i=0; i<_nodes.size(); ++i)
+    wordSet[i] = _nodes[i].getWord();
+  return wordSet;
 }
 
 size_t HTKLattice::getPreviousArcIndex(size_t idx) const {
@@ -170,16 +127,6 @@ size_t HTKLattice::getPreviousArcIndex(size_t idx) const {
     if(_arcs[i].getEndNode() == _arcs[idx].getStartNode())
       return i;
   return 0;
-}
-
-string HTKLattice::getValidUtteranceId() const {
-  string utteranceId = _header.utterance.substr(_header.utterance.find_last_of("/") + 1);
-  utteranceId = utteranceId.substr(0, utteranceId.find_last_of("."));
-
-  for(int i=0; i<utteranceId.size(); ++i)
-    if(utteranceId[i] == '-' || utteranceId[i] == '.')
-      utteranceId[i] = '_';
-  return utteranceId;
 }
 
 Likelihood HTKLattice::computeLikelihood(const Arc& arc) const {

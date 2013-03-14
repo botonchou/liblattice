@@ -1,59 +1,97 @@
 #include <sqlite_wrapper.h>
-SQLiteTable::~SQLiteTable() {
-  sqlite3_free_table(_table);
+#include <utility.h>
+
+int SQLiteTable::callback(void* sqlTable, int argc, char **argv, char **azColName){
+  SQLiteTable* sqlLiteTable = reinterpret_cast<SQLiteTable*>(sqlTable);
+  return sqlLiteTable->callback(argc, argv, azColName);
 }
 
-void SQLiteTable::print() const {
-  if(_table == NULL)
-    return;
-
-  for (int i=0; i < _rows + 1; i++) {
-    for (int j=0; j < _cols; j++)
-      printf("%s\t", _table[i*_cols+j]);
-    printf("\n");
-  }
+int SQLiteTable::callback(int argc, char** argv, char** azColName) {
+  for(int i=0; i<argc; i++)
+    printf("%s\t", argv[i] ? argv[i] : "NULL");
+  printf("\n");
+  return 0;
 }
 
+xCallback SQLiteTable::getCallback() const {
+  return SQLiteTable::callback;
+}
+
+template <>
+int List<string>::callback(int argc, char **argv, char **azColName) {
+  Array<string>::push_back(argv[0] ? argv[0] : "NULL");
+  return 0;
+}
+
+// ****************************
+// ****** SQLiteDatabase ******
+// ****************************
+// Static Functions goes here
+int SQLiteDatabase::nTempTable = 0;
+string SQLiteDatabase::TEMP_TABLE_PREFIX = "temp_";
+string SQLiteDatabase::allocNewTempTable() {
+  return TEMP_TABLE_PREFIX + int2str(nTempTable++);
+}
+// Non-Static Functions
 SQLiteDatabase::SQLiteDatabase(string dbFilename): _db(NULL) {
   if(sqlite3_open_v2(dbFilename.c_str(), &_db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL))
     cout << "Failed to open database file:" << dbFilename << endl;
 }
 
 SQLiteDatabase::~SQLiteDatabase() {
+  for(int i=0; i<nTempTable; ++i)
+    this->dropTable(TEMP_TABLE_PREFIX + int2str(i));
   if(_db != NULL)
     sqlite3_close(_db);
 }
 
-
-bool SQLiteDatabase::exec(const char* query, int (*xCallback)(void*,int,char**,char**) ) const {
+bool SQLiteDatabase::exec(string statement) const {
   char* errMsg = NULL;
-  sqlite3_exec(_db, query, xCallback, 0, &errMsg);
+  sqlite3_exec(_db, statement.c_str(), 0, 0, &errMsg);
+
   if(errMsg != NULL) {
-    cout << "ERROR!! " << errMsg << endl;
-    cout << "Instruction: " << query << endl;
-    delete errMsg;
+    printf("Error!!%s\nWhen executing instruction: %s", errMsg, statement.c_str());
     return false;
   }
   return true;
 }
 
-SQLiteTable SQLiteDatabase::get(char* query) const {
+bool SQLiteDatabase::get(string statement, SQLiteTable* table) const {
   char* errMsg = NULL;
-  SQLiteTable result;
-  sqlite3_get_table(_db, query, &(result._table), &(result._rows), &(result._cols), &errMsg);
-  if(errMsg != NULL) {
-    cout << "ERROR!! " << errMsg << endl;
-    cout << "Instruction: " << query << endl;
-    delete errMsg;
+  xCallback callback = NULL;
+
+  if(table != NULL)
+    callback = table->getCallback();
+
+  if(TempList* tempList = dynamic_cast<TempList*>(table)) {
+    string tempTableName = SQLiteDatabase::allocNewTempTable();
+    statement = "CREATE TEMP TABLE " + tempTableName + " AS " + statement;
+    tempList->setTempTableName(tempTableName);
+    tempList->bind(this);
   }
 
-  return result;
+  sqlite3_exec(_db, statement.c_str(), callback, table, &errMsg);
+
+  if(errMsg != NULL) {
+    printf("Error!!%s\nWhen executing instruction: %s", errMsg, statement.c_str());
+    return false;
+  }
+  return true;
 }
 
-bool SQLiteDatabase::hasTable(string tableName) const {
-  char query[128];
-  sprintf(query, "SELECT count(type) FROM sqlite_master WHERE type='table' AND name='%s';", tableName.c_str());
-  SQLiteTable result = this->get(query);
+void SQLiteDatabase::printTable(string tableName) const {
+  SQLiteTable tempTable;
+  this->get("SELECT * FROM " + tableName, &tempTable);
+}
 
-  return (result._table[1][0] == '1');
+void SQLiteDatabase::dropTable(string tableName) const {
+  this->exec("DROP TABLE IF EXISTS " + tableName);
+}
+
+void SQLiteDatabase::beginTransaction() const {
+  this->exec("BEGIN TRANSACTION;");
+}
+
+void SQLiteDatabase::endTransaction() const {
+  this->exec("END TRANSACTION;");
 }
