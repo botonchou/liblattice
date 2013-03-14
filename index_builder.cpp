@@ -114,7 +114,7 @@ void Corpus::createLatticeTable(string tableName, string uid) {
 
   sprintf( sql, "SELECT u_id FROM utterances WHERE doc_id = '%s';", uid.c_str() );
   List<string> list;
-  _db.exec(sql, &list);
+  _db.get(sql, &list);
 
   if(list.size() == 0) {
     sprintf( sql, "INSERT INTO utterances (doc_id, has_word_lattice) VALUES ('%s', 1);", uid.c_str() ); 
@@ -137,7 +137,7 @@ void InvertedIndex::buildFrom(Corpus& corpus) {
   char sql[512];
   sprintf(sql, "SELECT doc_id FROM utterances WHERE has_word_lattice == 1;" );
   List<string> list;
-  db.exec(sql, &list);
+  db.get(sql, &list);
 
   db.beginTransaction();
   for(int i=0; i<list.size(); ++i) {

@@ -1,5 +1,16 @@
 #include <lattice.h>
 
+HypothesisRegion::HypothesisRegion(): u_id(0), arc_id(0), prev_arc_id(0), likelihood(0) {
+}
+HypothesisRegion::HypothesisRegion(int argc, char** argv): u_id(0), arc_id(0), prev_arc_id(0), likelihood(0) {
+  u_id = atoi(argv[0]);
+  arc_id = atoi(argv[1]);
+  prev_arc_id = atoi(argv[2]);
+  likelihood = atof(argv[3]);
+}
+ostream& operator << (ostream& os, const HypothesisRegion& hr) {
+  return os << hr.u_id << "\t" << hr.arc_id << "\t" << hr.prev_arc_id << "\t" << hr.likelihood;
+}
 // ******************************
 // ***** HTK Lattice Parser *****
 // ******************************

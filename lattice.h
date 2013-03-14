@@ -15,6 +15,20 @@
 #include <utility.h>
 using namespace std;
 
+class HypothesisRegion {
+public:
+  HypothesisRegion();
+  HypothesisRegion(int argc, char** argv);
+  friend ostream& operator << (ostream& os, const HypothesisRegion& hr);
+
+  int u_id;
+  int arc_id;
+  int prev_arc_id;
+  double likelihood;
+};
+
+ostream& operator << (ostream& os, const HypothesisRegion& hr);
+
 // ***************************
 // *****     Lattice     *****
 // ***************************
