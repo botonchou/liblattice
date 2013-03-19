@@ -7,12 +7,17 @@
 #include <sqlite3.h>
 #include <lattice.h>
 #include <index_builder.h>
+#include <progress_bar.h>
+#include <profile.h>
 
 //#include <graph.h>
 using namespace std;
 void processLattice(Corpus& corpus, string listFilename);
 
 int main(int argc, char* argv[]) {
+
+  Profile profile;
+  profile.tic();
 
   CmdParser cmdParser(argc, argv);
   cmdParser.regOpt("-o", "output filename of corpus database");
@@ -25,6 +30,8 @@ int main(int argc, char* argv[]) {
 
   InvertedIndex invertedIndex;
   invertedIndex.buildFrom(corpus);  
+
+  profile.toc();
 
   return 0;
 }
@@ -40,20 +47,27 @@ void processLattice(Corpus& corpus, string listFilename) {
 
   Vocabulary vocabulary;
 
+  ProgressBar pBar("Parsing lattice...");
+
   for(int i=0; i<lattices.size(); ++i) {
-    cout << "Parsing lattice " << utteranceIds[i] << endl;
+    pBar.refresh((double) (i + 1)/lattices.size());
     lattices[i] = htkLatticeParser.createLattice(utteranceIds[i]);
     vocabulary.add(lattices[i]->getWordSet());
   }
 
-  cout << "Establishing Vocabulary..." << endl;
+  cout << GREEN << "Establishing Vocabulary..." << COLOREND << endl;
   corpus.establishVocabulary();
   corpus.updateVocabulary(vocabulary);
 
+
+  ProgressBar pBar2("Inserting lattice into database...");
+  corpus.getDatabase().beginTransaction();
   for(int i=0; i<lattices.size(); ++i) {
-    cout << "Processing " << i << "th lattice" << endl;
+    pBar2.refresh((double) (i + 1)/lattices.size());
     corpus.add(lattices[i]);
   }
+  cout << "Committing..." << endl;
+  corpus.getDatabase().endTransaction();
 }
 
 /*

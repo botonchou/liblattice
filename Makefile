@@ -1,40 +1,47 @@
-#SHELL := /bin/bash
+CC=gcc
 CXX=g++
-CFLAGS=-g -w
-all: indexer retrieve
-SRC=\
-    lattice.cpp\
-    sqlite_wrapper.cpp\
-    utility.cpp\
-    index_builder.cpp\
+CFLAGS=-g 
+CPPFLAGS=-w $(CFLAGS) -I include/
 
-INCLUDE=$(SRC:.cpp=.h)
-LIBS=$(INCLUDE:.h=.o)
-LD_LIBRARY= -lsqlite3\
-	    -lpthread\
-	    -ldl\
-	    -lcmdparser\
-	    -larray
+SOURCES=lattice.cpp\
+	sqlite_wrapper.cpp\
+	utility.cpp\
+	index_builder.cpp
+ 
+all: indexer retrieve ctags
 
-INCLUDE_PATH=\
-	     -I ./\
-	     -I /usr/local/src/sqlite3 \
-	     -I /usr/local/boost_1_53_0/\
-	     -I /usr/local/boton/include/
+vpath %.h include/
+vpath %.cpp src/
 
-LIBRARY_PATH=-L/usr/local/boost_1_53_0/libs/\
-	     -L/usr/local/boton/lib/
+OBJ=$(addprefix obj/,$(SOURCES:.cpp=.o))
 
-indexer: $(LIBS) $(INCLUDE) indexer.cpp
-	$(CXX) $(CFLAGS) -o indexer indexer.cpp $(LIBS) $(INCLUDE_PATH) $(LD_LIBRARY) $(LIBRARY_PATH) 
+LIBRARY= -lsqlite3\
+	 -lpthread\
+	 -ldl\
+	 -lcmdparser\
+	 -larray\
+
+LIBRARY_PATH=-L/usr/local/boton/lib/
+
+indexer: $(OBJ) indexer.cpp
+	$(CXX) $(CPPFLAGS) -o $@ $^ $(LIBRARY_PATH) $(LIBRARY) 
+retrieve: $(OBJ) retrieve.cpp
+	$(CXX) $(CPPFLAGS) -o $@ $^ $(LIBRARY_PATH) $(LIBRARY)
+test: $(OBJ) test.cpp
+	$(CXX) $(CPPFLAGS) -o $@ $^ $(LIBRARY_PATH) $(LIBRARY)
+ctags:
 	@ctags -R *
-retrieve: $(LIBS) $(INCLUDE) retrieve.cpp
-	$(CXX) $(CFLAGS) -o retrieve retrieve.cpp $(LIBS) $(INCLUDE_PATH) $(LD_LIBRARY) $(LIBRARY_PATH)
-	@ctags -R *
-test: test.cpp
-	$(CXX) -o test test.cpp
-%.o: %.cpp %.h
-	$(CXX) $(CFLAGS) -c $< $(INCLUDE_PATH)
+
+obj/%.o: %.cpp
+	$(CXX) $(CPPFLAGS) -o $@ -c $<
+
+obj/%.d: %.cpp
+	@$(CXX) -MM $(CPPFLAGS) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,obj/\1.o $@ : ,g' < $@.$$$$ > $@;\
+	rm -f $@.$$$$
+
+-include $(addprefix obj/,$(subst .cpp,.d,$(SOURCES)))
+
 .PHONY:
 clean:
-	rm -rf indexer retrieve *.o
+	rm -rf indexer retrieve obj/*

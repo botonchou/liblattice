@@ -1,5 +1,6 @@
 #include <lattice.h>
 
+
 HypothesisRegion::HypothesisRegion(): u_id(0), arc_id(0), prev_arc_id(0), likelihood(0) {
 }
 HypothesisRegion::HypothesisRegion(int argc, char** argv): u_id(0), arc_id(0), prev_arc_id(0), likelihood(0) {
@@ -34,9 +35,6 @@ HTKLattice::Node HTKLatticeParser::createNode(fstream& file) {
   file >> str;
   node._variation = atoi(str + 2);
   
-  /*node._time = str2float(getNext(file));
-  node._word = getNext(file);
-  node._variation = str2int(getNext(file));*/
   return node;
 }
 

@@ -47,7 +47,7 @@ void Corpus::updateVocabulary(Vocabulary& vocabulary) {
   map<string, bool>::iterator itr = vocabulary.getWords().begin();
   char sql[512];
   for(; itr != vocabulary.getWords().end(); ++itr) {
-    cout << itr->first.c_str() << endl;
+    //cout << itr->first.c_str() << endl;
     sprintf(sql, "INSERT INTO vocabulary (word) VALUES ('%s');", itr->first.c_str());
     _db.exec(sql);
   }
@@ -65,11 +65,11 @@ void Corpus::add(Lattice* lattice) {
 
   _db.exec(createInsertSQL(htkLattice, 0, getValidTableName(u)));
 
-  _db.exec("PRAGMA foreign_keys = ON;");
-  _db.beginTransaction();
+  //_db.exec("PRAGMA foreign_keys = ON;");
+  //_db.beginTransaction();
   for(int i=1; i<htkLattice->getArcs().size(); ++i)
     _db.exec(createInsertSQL(htkLattice, i, getValidTableName(u)));
-  _db.endTransaction();
+  //_db.endTransaction();
 
   char sql[512];
   sprintf(sql, "UPDATE %s SET word_id=(SELECT v.word_id FROM vocabulary AS v WHERE %s.word_id == v.word);", getValidTableName(u).c_str(), getValidTableName(u).c_str());
@@ -85,6 +85,7 @@ string Corpus::createInsertSQL(HTKLattice* htkLattice, size_t arcIdx, string tab
 
   char sql[512];
   sprintf( sql, INSERT_SQL_TEMPLATE, tableName.c_str(), arcIdx, htkLattice->getPreviousArcIndex(arcIdx), node.getWord().c_str(), htkLattice->computeLikelihood(arc), (int) (htkLattice->getNodes()[arc.getStartNode()].getTime()*1000), (int) (htkLattice->getNodes()[arc.getEndNode()].getTime()*1000));
+  //sprintf( sql, INSERT_SQL_TEMPLATE, tableName.c_str(), arcIdx, 0, "A", 0.0, 0, 0);
   return sql;
 }
 
@@ -112,7 +113,7 @@ void Corpus::createLatticeTable(string tableName, string uid) {
   sprintf(sql, CREATE_LATTICE_TABLE_SQL, tableName.c_str(), tableName.c_str(), tableName.c_str());
   _db.exec(sql);
 
-  sprintf( sql, "SELECT u_id FROM utterances WHERE doc_id = '%s';", uid.c_str() );
+  sprintf( sql, "SELECT u_id FROM utterances WHERE doc_id = '%s' LIMIT 1;", uid.c_str() );
   List<string> list;
   _db.get(sql, &list);
 
