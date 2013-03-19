@@ -36,6 +36,8 @@ string SQLiteDatabase::allocNewTempTable() {
 SQLiteDatabase::SQLiteDatabase(string dbFilename): _db(NULL) {
   if(sqlite3_open_v2(dbFilename.c_str(), &_db, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL))
     cout << "Failed to open database file:" << dbFilename << endl;
+  this->exec("PRAGMA main.cache_size=1048576;");
+  this->exec("PRAGMA main.page_size=65536;");
 }
 
 SQLiteDatabase::~SQLiteDatabase() {

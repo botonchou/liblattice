@@ -70,7 +70,7 @@ Lattice* HTKLatticeParser::createLattice(string filename) {
   header.lmscale    = str2float(getNext(file));
   header.wdpenalty  = str2float(getNext(file));
 
-  getNext(file);    // get prScale
+  //getNext(file);    // get prScale
 
   header.acscale    = str2float(getNext(file));
   header.vocab	    = getNext(file);
