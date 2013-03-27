@@ -59,14 +59,21 @@ void Corpus::updateVocabulary(Vocabulary& vocabulary) {
   _db.endTransaction();
 }
 
-void Corpus::add(Lattice* lattice, Vocabulary& vocabulary) {
+int getPreviousArcIndex(vulcan::HtkLattice* htkLattice, size_t idx) {
+  for(size_t i=0; i<idx; ++i)
+    if(htkLattice->_arc[i]->_endNode->_index == htkLattice->_arc[idx]->_startNode->_index)
+      return i;
+  return 0;
+}
+
+void Corpus::add(vulcan::HtkLattice* htkLattice, Vocabulary& vocabulary) {
   static const int BUFFER_SIZE = 512;
 
-  HTKLattice* htkLattice = dynamic_cast<HTKLattice*>(lattice);
+  //HTKLattice* htkLattice = dynamic_cast<HTKLattice*>(lattice);
   createUtteranceTableIfNotExist();
 
   // Build table name
-  string u = htkLattice->getHeader().utterance;
+  string u = htkLattice->_utterance;
   createLatticeTable(getValidTableName(u), getValidUtteranceId(u));
 
   static const char* INSERT_SQL_TEMPLATE="INSERT INTO %s (arc_id, prev_arc_id, word_id, likelihood, begin_time, end_time) VALUES (@aid, @paid, @wid, @l, @t1, @t2);";
@@ -77,8 +84,31 @@ void Corpus::add(Lattice* lattice, Vocabulary& vocabulary) {
   char sSQL[BUFFER_SIZE] = "\0";
   sprintf(sSQL, INSERT_SQL_TEMPLATE, getValidTableName(u).c_str());
   sqlite3_prepare_v2(_db.getDatabase(), sSQL, BUFFER_SIZE, &stmt, &tail);
+
+  vulcan::HtkLatticeForwardBackwardOperator* htkFB = new vulcan::HtkLatticeForwardBackwardOperator;
+  htkFB->DoForwardBackward(htkLattice);
   
+  map<vulcan::HtkArc*, float>::iterator it;
+  for(it = htkFB->_arcPosterior.begin(); it != htkFB->_arcPosterior.end(); it++) {
+    vulcan::HtkArc* htkArc = it->first;
+    float posterior = it->second;
+    int i = htkArc->_index;
+    sqlite3_bind_int(stmt   , 1, i);
+    sqlite3_bind_int(stmt   , 2, getPreviousArcIndex(htkLattice, i));
+    sqlite3_bind_int(stmt   , 3, vocabulary.getIndex(htkArc->_endNode->_word));
+    sqlite3_bind_double(stmt, 4, posterior);
+    sqlite3_bind_int(stmt   , 5, (int) (htkArc->_startNode->_time*1000));
+    sqlite3_bind_int(stmt   , 6, (int) (htkArc->_endNode->_time*1000));
+
+    //fprintf(f, "htkArc->_endNode->_word = [ %s ]\n", htkArc->_endNode->_word.c_str());
+    //fprintf(f, "posterior = [ %#.6e ]\n", posterior);
+
+    sqlite3_step(stmt);
+    sqlite3_clear_bindings(stmt);
+    sqlite3_reset(stmt);
+  }
   //_db.exec("PRAGMA foreign_keys = ON;");
+  /*
   for(size_t i=0; i<htkLattice->getArcs().size(); ++i) {
     const HTKLattice::Arc& arc = htkLattice->getArc(i);
     const HTKLattice::Node& node = htkLattice->getNode(arc.getEndNode());
@@ -94,6 +124,7 @@ void Corpus::add(Lattice* lattice, Vocabulary& vocabulary) {
     sqlite3_clear_bindings(stmt);
     sqlite3_reset(stmt);
   }
+  */
 
 }
 

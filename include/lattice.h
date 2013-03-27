@@ -29,6 +29,7 @@ public:
 
 ostream& operator << (ostream& os, const HypothesisRegion& hr);
 
+/*
 // ***************************
 // *****     Lattice     *****
 // ***************************
@@ -220,39 +221,6 @@ public:
 
   bool isEndOfLattice(string& str);
   void replaceParenthesisWithSpace(string& str);
-};
-
-// *********************************
-// ***** Lattice2InvertedIndex *****
-// *********************************
-/*
-class LatticeNode {
-  typedef int Time; // time in milliseconds
-public:
-  LatticeNode(Word word, Time time): _word(word), _time(time) {}
-
-  bool operator == (const LatticeNode& rhs) const { return (_word == rhs._word) && (_time == rhs._time); }
-  bool operator != (const LatticeNode& rhs) const { return !(*this == rhs); }
-
-  friend ofstream& operator << (ofstream& fs, const LatticeNode& node);
-  friend ostream& operator << (ostream& os, const LatticeNode& node);
-private:
-  Word _word;
-  Time _time;
-};
-ofstream& operator << (ofstream& fs, const LatticeNode& node);
-ostream& operator << (ostream& os, const LatticeNode& node);
-
-class SimpleLattice {
-public:
-  void cvtFromHTKLattice(Lattice* lattice);
-  void cvtFromTTKLattice(Lattice* lattice);
-
-  const Graph<LatticeNode, Likelihood>& getGraph() const { return _graph; }
-  void save(sqlite3* db) const {
-  }
-private:
-  Graph<LatticeNode, Likelihood> _graph;
 };
 */
 

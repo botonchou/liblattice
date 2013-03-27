@@ -13,6 +13,8 @@ HypothesisRegion::HypothesisRegion(int argc, char** argv): u_id(0), arc_id(0), p
 ostream& operator << (ostream& os, const HypothesisRegion& hr) {
   return os << hr.u_id << "\t" << hr.arc_id << "\t" << hr.prev_arc_id << "\t" << hr.likelihood;
 }
+
+/*
 // ******************************
 // ***** HTK Lattice Parser *****
 // ******************************
@@ -215,50 +217,5 @@ ostream& operator << (ostream& os, const HTKLattice::Node& node) {
 ostream& operator << (ostream& os, const HTKLattice::Arc& arc) {
   os << "S=" << arc._startNode << "\tE=" << arc._endNode << "\ta=" << arc._acScore << "\tl=" << arc._lmScore;
   return os;
-}
-
-/*
-ofstream& operator << (ofstream& fs, const LatticeNode& node) {
-  fs << node._word << "(" << node._time << ")";
-  return fs;
-}
-
-ostream& operator << (ostream& os, const LatticeNode& node) {
-  os << node._word << "(" << node._time << ")";
-  return os;
-}
-
-// **************************
-// ***** Simple Lattice *****
-// **************************
-void SimpleLattice::cvtFromHTKLattice(Lattice* lattice) {
-  HTKLattice* htkLattice = dynamic_cast<HTKLattice*>(lattice);
-  for(int i=0; i<htkLattice->getNodes().size(); ++i)
-    _graph.addNode( LatticeNode(htkLattice->getNode(i).getWord(), htkLattice->getNode(i).getTime()) );
-
-  float lmscale = htkLattice->getHeader().lmscale;
-  float acscale = htkLattice->getHeader().acscale;
-
-  for(int i=0; i<htkLattice->getArcs().size(); ++i) {
-    HTKLattice::Arc arc = htkLattice->getArc(i);
-    _graph.addEdge(arc.getStartNode(), arc.getEndNode(), lmscale * arc.getLmScore() + acscale * arc.getAcScore());
-  }
-}
-
-void SimpleLattice::cvtFromTTKLattice(Lattice* lattice) {
-  TTKLattice* ttkLattice = dynamic_cast<TTKLattice*>(lattice);
-  _graph.addNode(LatticeNode("SIL", 0));
-
-  for(int i=0; i<ttkLattice->getArcs().size(); ++i) {
-    TTKLattice::Arc arc = ttkLattice->getArcs()[i];
-
-    LatticeNode rNode(arc.getCurrWord(), arc.getEndTime());
-    LatticeNode lNode(arc.getPrevWord(), arc.getBeginTime());
-
-    if(_graph.findByValue(rNode) == NULL)
-      _graph.addNode(rNode);
-    _graph.addEdge(_graph.findByValue(lNode), _graph.findByValue(rNode), arc.getConfidenceMeasure());
-
-  }
 }
 */

@@ -5,6 +5,10 @@
 #include <sqlite_wrapper.h>
 #include <lattice.h>
 
+#include <common/common-config.h>
+#include <common/common-io.h>
+#include <htk/htk-lattice.h>
+
 class Vocabulary {
 public:
   Vocabulary();
@@ -26,7 +30,7 @@ public:
   void establishVocabulary();
   void createUtteranceTableIfNotExist();
   void updateVocabulary(Vocabulary& vocabulary);
-  void add(Lattice* lattice, Vocabulary& vocabulary);
+  void add(vulcan::HtkLattice* htkLattice, Vocabulary& vocabulary);
   
   void createLatticeTable(string tableName, string uid);
 
