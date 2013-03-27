@@ -6,6 +6,8 @@
 #include <vector>
 #include <array.h>
 #include <utility.h>
+
+#define DATABASE ":memory:"
 using namespace std;
 typedef int (*xCallback)(void*,int,char**,char**);
 
@@ -33,6 +35,7 @@ public:
   void dropTable(string tableName) const;
   void beginTransaction() const;
   void endTransaction() const;
+  sqlite3* getDatabase();
 
   static string allocNewTempTable();
 

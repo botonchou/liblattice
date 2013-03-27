@@ -1,28 +1,34 @@
 #include <index_builder.h>
 
-
 Vocabulary::Vocabulary() {
 }
 
 void Vocabulary::add(vector<string> words) {
-  for(int i=0; i<words.size(); ++i)
-    _words[words[i]] = true;
+  for(size_t i=0; i<words.size(); ++i)
+    _words[words[i]] = 1;
 }
 
 void Vocabulary::add(string word) {
-  _words[word] = true;
+  _words[word] = 1;
 }
 
 void Vocabulary::remove(string word) {
   _words.erase(word);
 }
 
-size_t Vocabulary::size() const {
-  return _words.size();
+void Vocabulary::reindex() {
+  int counter = 0;
+  map<string, int>::iterator itr = _words.begin();
+  for(; itr != _words.end(); ++itr)
+    itr->second = ++counter;
 }
 
-map<string, bool>& Vocabulary::getWords() {
-  return _words;
+int Vocabulary::getIndex(string word) {
+  return _words[word];
+}
+
+size_t Vocabulary::size() const {
+  return _words.size();
 }
 
 // ******************
@@ -44,17 +50,17 @@ void Corpus::createUtteranceTableIfNotExist() {
 void Corpus::updateVocabulary(Vocabulary& vocabulary) {
 
   _db.beginTransaction();
-  map<string, bool>::iterator itr = vocabulary.getWords().begin();
+  map<string, int>::iterator itr = vocabulary._words.begin();
   char sql[512];
-  for(; itr != vocabulary.getWords().end(); ++itr) {
-    //cout << itr->first.c_str() << endl;
+  for(; itr != vocabulary._words.end(); ++itr) {
     sprintf(sql, "INSERT INTO vocabulary (word) VALUES ('%s');", itr->first.c_str());
     _db.exec(sql);
   }
   _db.endTransaction();
 }
 
-void Corpus::add(Lattice* lattice) {
+void Corpus::add(Lattice* lattice, Vocabulary& vocabulary) {
+  static const int BUFFER_SIZE = 512;
 
   HTKLattice* htkLattice = dynamic_cast<HTKLattice*>(lattice);
   createUtteranceTableIfNotExist();
@@ -63,30 +69,32 @@ void Corpus::add(Lattice* lattice) {
   string u = htkLattice->getHeader().utterance;
   createLatticeTable(getValidTableName(u), getValidUtteranceId(u));
 
-  _db.exec(createInsertSQL(htkLattice, 0, getValidTableName(u)));
+  static const char* INSERT_SQL_TEMPLATE="INSERT INTO %s (arc_id, prev_arc_id, word_id, likelihood, begin_time, end_time) VALUES (@aid, @paid, @wid, @l, @t1, @t2);";
 
+  sqlite3_stmt* stmt;
+  const char* tail = NULL;
+
+  char sSQL[BUFFER_SIZE] = "\0";
+  sprintf(sSQL, INSERT_SQL_TEMPLATE, getValidTableName(u).c_str());
+  sqlite3_prepare_v2(_db.getDatabase(), sSQL, BUFFER_SIZE, &stmt, &tail);
+  
   //_db.exec("PRAGMA foreign_keys = ON;");
-  //_db.beginTransaction();
-  for(int i=1; i<htkLattice->getArcs().size(); ++i)
-    _db.exec(createInsertSQL(htkLattice, i, getValidTableName(u)));
-  //_db.endTransaction();
+  for(size_t i=0; i<htkLattice->getArcs().size(); ++i) {
+    const HTKLattice::Arc& arc = htkLattice->getArc(i);
+    const HTKLattice::Node& node = htkLattice->getNode(arc.getEndNode());
 
-  char sql[512];
-  sprintf(sql, "UPDATE %s SET word_id=(SELECT v.word_id FROM vocabulary AS v WHERE %s.word_id == v.word);", getValidTableName(u).c_str(), getValidTableName(u).c_str());
-  _db.exec(sql);
-}
+    sqlite3_bind_int(stmt   , 1, i);
+    sqlite3_bind_int(stmt   , 2, htkLattice->getPreviousArcIndex(i));
+    sqlite3_bind_int(stmt   , 3, vocabulary.getIndex(node.getWord()));
+    sqlite3_bind_double(stmt, 4, htkLattice->computeLikelihood(arc));
+    sqlite3_bind_int(stmt   , 5, (int) (htkLattice->getNodes()[arc.getStartNode()].getTime()*1000));
+    sqlite3_bind_int(stmt   , 6, (int) (htkLattice->getNodes()[arc.getEndNode()].getTime()*1000));
 
-string Corpus::createInsertSQL(HTKLattice* htkLattice, size_t arcIdx, string tableName) const {
+    sqlite3_step(stmt);
+    sqlite3_clear_bindings(stmt);
+    sqlite3_reset(stmt);
+  }
 
-  static const char* INSERT_SQL_TEMPLATE = "INSERT INTO %s (arc_id, prev_arc_id, word_id, likelihood, begin_time, end_time) VALUES (%d, %d, '%s', %f, %d, %d);";
-
-  const HTKLattice::Arc& arc = htkLattice->getArc(arcIdx);
-  const HTKLattice::Node& node = htkLattice->getNode(arc.getEndNode());
-
-  char sql[512];
-  sprintf( sql, INSERT_SQL_TEMPLATE, tableName.c_str(), arcIdx, htkLattice->getPreviousArcIndex(arcIdx), node.getWord().c_str(), htkLattice->computeLikelihood(arc), (int) (htkLattice->getNodes()[arc.getStartNode()].getTime()*1000), (int) (htkLattice->getNodes()[arc.getEndNode()].getTime()*1000));
-  //sprintf( sql, INSERT_SQL_TEMPLATE, tableName.c_str(), arcIdx, 0, "A", 0.0, 0, 0);
-  return sql;
 }
 
 string Corpus::getValidTableName(string str) {
@@ -97,15 +105,15 @@ string Corpus::getValidUtteranceId(string str) {
   string id = str.substr(str.find_last_of("/") + 1);
   id = id.substr(0, id.find_last_of("."));
 
-  for(int i=0; i<id.size(); ++i)
+  for(size_t i=0; i<id.size(); ++i)
     if(id[i] == '-' || id[i] == '.')
       id[i] = '_';
   return id;
 }
 
 void Corpus::createLatticeTable(string tableName, string uid) {
+  //const char* CREATE_LATTICE_TABLE_SQL = "CREATE TABLE %s (arc_id INTEGER, prev_arc_id INTEGER NOT NULL, word_id INTEGER NOT NULL, likelihood REAL NOT NULL, begin_time INTEGER NOT NULL, end_time INTEGER NOT NULL);";
   const char* CREATE_LATTICE_TABLE_SQL = "CREATE TABLE %s (arc_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, prev_arc_id INTEGER NOT NULL, word_id INTEGER NOT NULL, likelihood REAL NOT NULL, begin_time INTEGER NOT NULL, end_time INTEGER NOT NULL, CONSTRAINT %s_prev_arc_id_fk FOREIGN KEY (prev_arc_id) REFERENCES %s (arc_id));";
-  // , CONSTRAINT vocabulary_word_id_fk FOREIGN KEY (word_id) REFERENCES vocabulary (word_id)
 
   char sql[512];
   _db.dropTable(tableName);
@@ -141,10 +149,10 @@ void InvertedIndex::buildFrom(Corpus& corpus) {
   db.get(sql, &list);
 
   db.beginTransaction();
-  for(int i=0; i<list.size(); ++i) {
+  for(size_t i=0; i<list.size(); ++i) {
     string doc_id = list[i];
 
-    sprintf(sql, "INSERT INTO inverted_index (word_id, u_id, arc_id, prev_arc_id, likelihood, begin_time, end_time) SELECT word_id, %d, arc_id, prev_arc_id, likelihood, begin_time, end_time FROM u_%s_word_lattice AS u ORDER BY u.word_id;", i + 1, doc_id.c_str());
+    sprintf(sql, "INSERT INTO inverted_index (word_id, u_id, arc_id, prev_arc_id, likelihood, begin_time, end_time) SELECT word_id, %d, arc_id, prev_arc_id, likelihood, begin_time, end_time FROM u_%s_word_lattice AS u ORDER BY u.word_id;", (int) i + 1, doc_id.c_str());
     db.exec(sql);
 
   }

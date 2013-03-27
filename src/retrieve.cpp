@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
   if(nQuery > 1) {
     Array<string> queries(cmdParser.find("-q"));
 
-    for(int i=0; i<queries.size(); ++i)
+    for(size_t i=0; i<queries.size(); ++i)
       retrieve(corpus, queries[i]); 
   }
   else
@@ -47,7 +47,7 @@ void retrieve(Corpus& corpus, string query) {
   vector<string> queries = split(query, '_');
   vector<TempList> result(queries.size());
 
-  for(int i=0; i<queries.size(); ++i) {
+  for(size_t i=0; i<queries.size(); ++i) {
     result[i] = retrieveSingleWord(corpus, queries[i]);
     result[i].print();
   }
@@ -63,7 +63,7 @@ void innerJoin(Corpus& corpus, string table1, string table2) {
   List<HypothesisRegion> hrs;
   corpus.getDatabase().get(sql, &hrs);
 
-  for(int i=0; i<hrs.size(); ++i)
+  for(size_t i=0; i<hrs.size(); ++i)
     cout << hrs[i] << endl;
 }
 

@@ -38,11 +38,11 @@ SQLiteDatabase::SQLiteDatabase(string dbFilename): _db(NULL) {
     cout << "Failed to open database file:" << dbFilename << endl;
   this->exec("PRAGMA main.cache_size=1048576;");
   this->exec("PRAGMA main.page_size=65536;");
+  this->exec("PRAGMA synchronous=OFF;");
+  this->exec("PRAGMA journal_mode=MEMORY;");
 }
 
 SQLiteDatabase::~SQLiteDatabase() {
-  for(int i=0; i<nTempTable; ++i)
-    this->dropTable(TEMP_TABLE_PREFIX + int2str(i));
   if(_db != NULL)
     sqlite3_close(_db);
 }
@@ -96,4 +96,8 @@ void SQLiteDatabase::beginTransaction() const {
 
 void SQLiteDatabase::endTransaction() const {
   this->exec("END TRANSACTION;");
+}
+
+sqlite3* SQLiteDatabase::getDatabase() {
+  return _db;
 }

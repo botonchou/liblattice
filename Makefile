@@ -1,7 +1,7 @@
 CC=gcc
 CXX=g++
-CFLAGS=-g 
-CPPFLAGS=-w $(CFLAGS) -I include/
+CFLAGS=
+CPPFLAGS=-Wall -fstrict-aliasing $(CFLAGS) -I include/ -I /usr/local/boton/include/
 
 SOURCES=lattice.cpp\
 	sqlite_wrapper.cpp\

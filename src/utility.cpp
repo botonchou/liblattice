@@ -3,11 +3,11 @@
 string int2str(int n) {
   char buf[32];
   sprintf(buf, "%d", n);
-  return buf;
+  return string(buf);
 }
 
 double str2double(const string& str) {
-  return atof(str.c_str());
+  return (double) atof(str.c_str());
 }
 
 float str2float(const string& str) {

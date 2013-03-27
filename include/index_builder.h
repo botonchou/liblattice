@@ -11,21 +11,23 @@ public:
   void add(vector<string> words);
   void add(string word);
   void remove(string word);
+  void reindex();
   size_t size() const;
-  map<string, bool>& getWords();
+  int getIndex(string word);
+
+  friend class Corpus;
 private:
-  map<string, bool> _words;
+  map<string, int> _words;
 };
 
 class Corpus {
 public:
   Corpus(string dbFilename);
-  void establishVocabulary() ;
-  void createUtteranceTableIfNotExist() ;
-  void updateVocabulary(Vocabulary& vocabulary) ;
-  void add(Lattice* lattice) ;
+  void establishVocabulary();
+  void createUtteranceTableIfNotExist();
+  void updateVocabulary(Vocabulary& vocabulary);
+  void add(Lattice* lattice, Vocabulary& vocabulary);
   
-  string createInsertSQL(HTKLattice* htkLattice, size_t arcIdx, string u) const ;
   void createLatticeTable(string tableName, string uid);
 
   static string getValidTableName(string str);

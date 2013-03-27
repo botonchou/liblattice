@@ -35,8 +35,8 @@ ostream& operator << (ostream& os, const HypothesisRegion& hr);
 class Lattice {
 public:
   virtual void print() const = 0;
-  virtual bool saveToVocabulary(map<string, bool>& vocabulary) const = 0;
   virtual vector<string> getWordSet() const = 0;
+  virtual ~Lattice() {}
 };
 
 typedef string Word;
@@ -50,6 +50,8 @@ class HTKLattice : public Lattice {
 
 public:
   friend class HTKLatticeParser;
+
+  ~HTKLattice() {}
 
   typedef struct Header {
     float version;
@@ -123,7 +125,6 @@ public:
   Likelihood computeLikelihood(const Arc& arc) const;
 
   void print() const;
-  bool saveToVocabulary(map<string, bool>& vocabulary) const;
   vector<string> getWordSet() const;
 
 private:
@@ -140,9 +141,10 @@ ostream& operator << (ostream& os, const HTKLattice::Arc& arc);
 class TTKLattice : public Lattice {
 public:
   friend class TTKLatticeParser;
+
+  ~TTKLattice() {}
   void print() const;
-  bool saveToVocabulary(map<string, bool>& vocabulary) const {}
-  vector<string> getWordSet() const {}
+  vector<string> getWordSet() const;
 
   class Arc {
     typedef int Time;
@@ -195,10 +197,12 @@ class LatticeParser {
 public:
   // Factory Method
   virtual Lattice* createLattice(string filename) = 0;
+  virtual ~LatticeParser() {}
 };
 
 class HTKLatticeParser : public LatticeParser {
 public:
+  ~HTKLatticeParser() {}
   Lattice* createLattice(string filename);
   string getNext(iostream& file);
 
@@ -208,6 +212,7 @@ public:
 
 class TTKLatticeParser : public LatticeParser {
 public:
+  ~TTKLatticeParser() {}
   Lattice* createLattice(string filename);
   string getNext(iostream& str);
 

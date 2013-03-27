@@ -1,9 +1,10 @@
 #include <lattice.h>
 
-
 HypothesisRegion::HypothesisRegion(): u_id(0), arc_id(0), prev_arc_id(0), likelihood(0) {
 }
 HypothesisRegion::HypothesisRegion(int argc, char** argv): u_id(0), arc_id(0), prev_arc_id(0), likelihood(0) {
+  if(argc < 4)
+    return;
   u_id = atoi(argv[0]);
   arc_id = atoi(argv[1]);
   prev_arc_id = atoi(argv[2]);
@@ -24,7 +25,7 @@ string HTKLatticeParser::getNext(iostream& file) {
 HTKLattice::Node HTKLatticeParser::createNode(fstream& file) {
   getNext(file);
   HTKLattice::Node node;
-  static char str[128];
+  char str[128];
   
   file >> str;
   node._time = atof(str + 2);
@@ -40,7 +41,7 @@ HTKLattice::Node HTKLatticeParser::createNode(fstream& file) {
 
 HTKLattice::Arc HTKLatticeParser::createArc(fstream& file) {
   // Handle different version of HTK lattice format
-  static char str[256];
+  char str[512];
   while(file >> str && str[0] != 'J');
 
   HTKLattice::Arc arc;
@@ -70,7 +71,7 @@ Lattice* HTKLatticeParser::createLattice(string filename) {
   header.lmscale    = str2float(getNext(file));
   header.wdpenalty  = str2float(getNext(file));
 
-  //getNext(file);    // get prScale
+  getNext(file);    // get prScale
 
   header.acscale    = str2float(getNext(file));
   header.vocab	    = getNext(file);
@@ -86,13 +87,13 @@ Lattice* HTKLatticeParser::createLattice(string filename) {
   nodes[0].setWord(getNext(file));
   nodes[0].setVariation(0);
 
-  for(int i=1; i<nodes.size(); ++i)
+  for(size_t i=1; i<nodes.size(); ++i)
     nodes[i] = this->createNode(file);
 
   vector<HTKLattice::Arc>& arcs = dynamic_cast<HTKLattice*>(lattice)->_arcs;
   arcs.resize(header.nArcs);
   
-  for(int i=0; i<arcs.size(); ++i)
+  for(size_t i=0; i<arcs.size(); ++i)
     arcs[i] = this->createArc(file);
 
   file.close();
@@ -101,27 +102,22 @@ Lattice* HTKLatticeParser::createLattice(string filename) {
 }
 
 void HTKLattice::print() const {
-  for(int i=0; i<this->_nodes.size(); ++i)
+  for(size_t i=0; i<this->_nodes.size(); ++i)
     cout << "I=" << i << "\t" << this->_nodes[i] << endl;
 
-  for(int i=0; i<this->_arcs.size(); ++i)
+  for(size_t i=0; i<this->_arcs.size(); ++i)
     cout << "J=" << i << "\t" << this->_arcs[i] << endl;
-}
-
-bool HTKLattice::saveToVocabulary(map<string, bool>& vocabulary) const {
-  for(int i=0; i<_nodes.size(); ++i)
-    vocabulary[_nodes[i].getWord()] = true;
 }
 
 vector<string> HTKLattice::getWordSet() const {
   vector<string> wordSet(_nodes.size());
-  for(int i=0; i<_nodes.size(); ++i)
+  for(size_t i=0; i<_nodes.size(); ++i)
     wordSet[i] = _nodes[i].getWord();
   return wordSet;
 }
 
 size_t HTKLattice::getPreviousArcIndex(size_t idx) const {
-  for(int i=0; i<idx; ++i)
+  for(size_t i=0; i<idx; ++i)
     if(_arcs[i].getEndNode() == _arcs[idx].getStartNode())
       return i;
   return 0;
@@ -203,8 +199,12 @@ ostream& operator << (ostream& os, const TTKLattice::Arc& arc) {
 // ***********************
 
 void TTKLattice::print() const {
-  for(int i=0; i<_arcs.size(); ++i)
+  for(size_t i=0; i<_arcs.size(); ++i)
     cout << _arcs[i] << endl;
+}
+
+vector<string> TTKLattice::getWordSet() const {
+  return vector<string>();
 }
 
 ostream& operator << (ostream& os, const HTKLattice::Node& node) {
