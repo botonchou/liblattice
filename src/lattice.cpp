@@ -14,7 +14,6 @@ ostream& operator << (ostream& os, const HypothesisRegion& hr) {
   return os << hr.u_id << "\t" << hr.arc_id << "\t" << hr.prev_arc_id << "\t" << hr.likelihood;
 }
 
-/*
 // ******************************
 // ***** HTK Lattice Parser *****
 // ******************************
@@ -73,7 +72,7 @@ Lattice* HTKLatticeParser::createLattice(string filename) {
   header.lmscale    = str2float(getNext(file));
   header.wdpenalty  = str2float(getNext(file));
 
-  getNext(file);    // get prScale
+  //getNext(file);    // get prScale
 
   header.acscale    = str2float(getNext(file));
   header.vocab	    = getNext(file);
@@ -218,4 +217,3 @@ ostream& operator << (ostream& os, const HTKLattice::Arc& arc) {
   os << "S=" << arc._startNode << "\tE=" << arc._endNode << "\ta=" << arc._acScore << "\tl=" << arc._lmScore;
   return os;
 }
-*/

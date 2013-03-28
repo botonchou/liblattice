@@ -5,7 +5,7 @@
 
 #include <stdio.h>
 #include <sqlite3.h>
-//#include <lattice.h>
+#include <lattice.h>
 #include <index_builder.h>
 #include <progress_bar.h>
 #include <profile.h>
@@ -43,45 +43,69 @@ vector<string> getWordSet(vulcan::HtkLattice* htkLattice) {
 }
 
 void processLattice(Corpus& corpus, string listFilename) {
-  //TTKLatticeParser ttkLatticeParser;
-  //Lattice* lattice = ttkLatticeParser.createLattice("N200108011200-04-07.lat");
-  //HTKLatticeParser htkLatticeParser;
   Array<string> utteranceIds(listFilename);
+  size_t nUtterances = utteranceIds.size();
 
-  vector<vulcan::HtkLattice*> lattices;
-  lattices.resize(utteranceIds.size());
+  // ============================
+  // === Construct Vocabulary ===
+  // ============================
   Vocabulary vocabulary;
-
-  //ProgressBar pBar("Parsing lattice...");
-  for(size_t i=0; i<lattices.size(); ++i) {
-    //pBar.refresh((double) (i + 1)/lattices.size());
-    //lattices[i] = htkLatticeParser.createLattice(utteranceIds[i]);
-    lattices[i] = new vulcan::HtkLattice;
-    lattices[i]->LoadHtkText(utteranceIds[i]);
-    vocabulary.add(getWordSet(lattices[i]));
+  ProgressBar pBar1("Establishing Vocabulary...");
+  HTKLatticeParser htkLatticeParser;
+  for(size_t i=0; i<nUtterances; ++i) {
+    pBar1.refresh(double (i+1) / nUtterances);
+    Lattice* lattice = htkLatticeParser.createLattice(utteranceIds[i]);
+    vocabulary.add(lattice->getWordSet());
+    delete lattice;
   }
 
-  cout << GREEN << "Establishing Vocabulary..." << COLOREND << endl;
+  cout << GREEN << "Saving Vocabulary to Database..." << COLOREND << endl;
   vocabulary.reindex();
   corpus.establishVocabulary();
   corpus.updateVocabulary(vocabulary);
 
+  // ===============================================================
+  // === Load HTK Lattices again to compute posterior probabilty ===
+  // ===============================================================
+
   Profile profile;
   profile.tic();
 
-  //ProgressBar pBar2("Inserting lattice into database...");
-  //int nInsertion = 0;
-  corpus.getDatabase().beginTransaction();
-  for(size_t i=0; i<lattices.size(); ++i) {
-    //pBar2.refresh((double) (i + 1)/lattices.size());
-    corpus.add(lattices[i], vocabulary);
-    //nInsertion += dynamic_cast<HTKLattice*>(lattices[i])->getArcs().size();
+  const size_t MAX_LATTICES = 10;
+  vector<vulcan::HtkLattice*> lattices;
+  lattices.reserve(MAX_LATTICES);
+  size_t nTimes = nUtterances / MAX_LATTICES + 1;
+
+  ProgressBar pBar2("Compute Posterior Probability and Insert lattice into Database...");
+
+  size_t idx = 0;
+  for(size_t i=0; i<nTimes; ++i) {
+    corpus.getDatabase().beginTransaction();
+
+    for(size_t j=0; j<MAX_LATTICES; ++j) {
+      if(idx >= nUtterances)
+	break;
+
+      pBar2.refresh(double (idx + 1) / nUtterances);
+
+      vulcan::HtkLattice* l = new vulcan::HtkLattice;
+      l->LoadHtkText(utteranceIds[idx++]);
+      lattices.push_back(l);
+      corpus.add(l, vocabulary);
+    }
+
+    for(size_t j=0; j<lattices.size(); ++j) {
+      lattices[j]->ReleaseMemory();
+      delete lattices[j];
+    }
+
+    lattices.clear();
+    lattices.reserve(MAX_LATTICES);
+
+    corpus.getDatabase().endTransaction();
   }
-  //cout << "#insertion in total: " << nInsertion << endl;
   
   profile.toc();
 
-  cout << "Committing..." << endl;
-  corpus.getDatabase().endTransaction();
 }
 

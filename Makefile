@@ -9,7 +9,8 @@ CPPFLAGS=-Wall -fstrict-aliasing $(CFLAGS) -I include/ -I /usr/local/boton/inclu
 SOURCES=sqlite_wrapper.cpp\
 	utility.cpp\
 	index_builder.cpp\
-	lattice.cpp
+	lattice.cpp\
+	retrieve-core.cpp
 	
  
 all: indexer retrieve ctags

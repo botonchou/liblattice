@@ -29,7 +29,6 @@ public:
 
 ostream& operator << (ostream& os, const HypothesisRegion& hr);
 
-/*
 // ***************************
 // *****     Lattice     *****
 // ***************************
@@ -222,6 +221,5 @@ public:
   bool isEndOfLattice(string& str);
   void replaceParenthesisWithSpace(string& str);
 };
-*/
 
 #endif // _LATTICE_2_INVERTED_INDEX_H

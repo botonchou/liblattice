@@ -88,6 +88,7 @@ void Corpus::add(vulcan::HtkLattice* htkLattice, Vocabulary& vocabulary) {
   vulcan::HtkLatticeForwardBackwardOperator* htkFB = new vulcan::HtkLatticeForwardBackwardOperator;
   htkFB->DoForwardBackward(htkLattice);
   
+  //_db.exec("PRAGMA foreign_keys = ON;");
   map<vulcan::HtkArc*, float>::iterator it;
   for(it = htkFB->_arcPosterior.begin(); it != htkFB->_arcPosterior.end(); it++) {
     vulcan::HtkArc* htkArc = it->first;
@@ -100,32 +101,13 @@ void Corpus::add(vulcan::HtkLattice* htkLattice, Vocabulary& vocabulary) {
     sqlite3_bind_int(stmt   , 5, (int) (htkArc->_startNode->_time*1000));
     sqlite3_bind_int(stmt   , 6, (int) (htkArc->_endNode->_time*1000));
 
-    //fprintf(f, "htkArc->_endNode->_word = [ %s ]\n", htkArc->_endNode->_word.c_str());
-    //fprintf(f, "posterior = [ %#.6e ]\n", posterior);
-
     sqlite3_step(stmt);
     sqlite3_clear_bindings(stmt);
     sqlite3_reset(stmt);
   }
-  //_db.exec("PRAGMA foreign_keys = ON;");
-  /*
-  for(size_t i=0; i<htkLattice->getArcs().size(); ++i) {
-    const HTKLattice::Arc& arc = htkLattice->getArc(i);
-    const HTKLattice::Node& node = htkLattice->getNode(arc.getEndNode());
 
-    sqlite3_bind_int(stmt   , 1, i);
-    sqlite3_bind_int(stmt   , 2, htkLattice->getPreviousArcIndex(i));
-    sqlite3_bind_int(stmt   , 3, vocabulary.getIndex(node.getWord()));
-    sqlite3_bind_double(stmt, 4, htkLattice->computeLikelihood(arc));
-    sqlite3_bind_int(stmt   , 5, (int) (htkLattice->getNodes()[arc.getStartNode()].getTime()*1000));
-    sqlite3_bind_int(stmt   , 6, (int) (htkLattice->getNodes()[arc.getEndNode()].getTime()*1000));
-
-    sqlite3_step(stmt);
-    sqlite3_clear_bindings(stmt);
-    sqlite3_reset(stmt);
-  }
-  */
-
+  htkFB->ReleaseMemory();
+  delete htkFB;
 }
 
 string Corpus::getValidTableName(string str) {
