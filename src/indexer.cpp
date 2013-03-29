@@ -71,7 +71,7 @@ void processLattice(Corpus& corpus, string listFilename) {
   Profile profile;
   profile.tic();
 
-  const size_t MAX_LATTICES = 10;
+  const size_t MAX_LATTICES = 1000;
   vector<vulcan::HtkLattice*> lattices;
   lattices.reserve(MAX_LATTICES);
   size_t nTimes = nUtterances / MAX_LATTICES + 1;
