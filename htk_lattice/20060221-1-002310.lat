@@ -1,0 +1,139 @@
+VERSION=1.0
+UTTERANCE=/share/data/cp/ntu_lectures/dsp/features/mfcc/20060221-1-002310.mfc
+lmname=LM/chinese+eng.hybrid.lm
+lmscale=3.20   wdpenalty=0.00  
+acscale=1.00  
+vocab=lexicon/chinese+eng.hybrid.lex
+hmms=AM/LectureDSP.mix24.SD.GMR.mmf
+N=44   L=87   
+I=0    t=0.00  W=!NULL               
+I=1    t=0.15  W=<s>                 v=1  
+I=2    t=0.16  W=<s>                 v=1  
+I=3    t=0.18  W=A                   v=1  
+I=4    t=0.19  W=I                   v=1  
+I=5    t=0.49  W=[A8BA][BBF2]        v=1  
+I=6    t=0.49  W=[A8BA][BBF2]        v=1  
+I=7    t=2.40  W=[C17C][A8D2][A8D3][C1BF][A94F] v=1  
+I=8    t=2.78  W=[A670][AA47]        v=1  
+I=9    t=2.91  W=[A741]              v=1  
+I=10   t=2.91  W=[A741]              v=1  
+I=11   t=3.08  W=[B458]              v=1  
+I=12   t=3.08  W=[B5B9]              v=2  
+I=13   t=3.08  W=[C0BD]              v=1  
+I=14   t=3.08  W=[BF6E]              v=1  
+I=15   t=3.08  W=[BEF7]              v=1  
+I=16   t=3.08  W=[B7A5]              v=1  
+I=17   t=3.08  W=[B6B0]              v=1  
+I=18   t=3.08  W=[B4C1]              v=2  
+I=19   t=3.08  W=[B4C1]              v=1  
+I=20   t=3.08  W=[B04F]              v=1  
+I=21   t=3.08  W=[B148]              v=1  
+I=22   t=3.08  W=[B0F2]              v=1  
+I=23   t=3.08  W=[A443]              v=1  
+I=24   t=3.08  W=[AEF0]              v=1  
+I=25   t=3.08  W=[ABE6]              v=1  
+I=26   t=3.08  W=[A8E4]              v=1  
+I=27   t=3.08  W=[A8E4]              v=2  
+I=28   t=3.08  W=[A659]              v=2  
+I=29   t=3.08  W=[A5F8]              v=1  
+I=30   t=3.08  W=[A4CE]              v=1  
+I=31   t=3.08  W=[A3A1]              v=1  
+I=32   t=3.08  W=[A3A2]              v=1  
+I=33   t=3.08  W=[C2FB]              v=1  
+I=34   t=3.22  W=[B0A6]              v=1  
+I=35   t=3.22  W=[B0A6]              v=1  
+I=36   t=3.22  W=[ABFC]              v=1  
+I=37   t=3.22  W=[ADC8]              v=1  
+I=38   t=3.22  W=[A575]              v=1  
+I=39   t=3.23  W=[B0A6]              v=1  
+I=40   t=3.23  W=[B0A6]              v=1  
+I=41   t=3.75  W=[B3C1][A74A][ADB7]  v=1  
+I=42   t=3.75  W=[B3C1][A74A][ADB7]  v=1  
+I=43   t=3.77  W=</s>                v=1  
+J=0     S=0    E=1    a=-242.96   l=0.000   d=:sil,0.15:
+J=1     S=0    E=2    a=-260.31   l=0.000   d=:sil,0.16:
+J=2     S=1    E=3    a=-58.15    l=-6.631  d=:EN_AO-EN_AH+CH_N#,0.03:sp,0.00:
+J=3     S=2    E=4    a=-59.62    l=-5.670  d=:EN_CH-EN_AY+CH_dz`,0.03:sp,0.00:
+J=4     S=1    E=5    a=-570.29   l=-2.671  d=:CH_dz-CH_n+CH_a,0.15:CH_n-CH_a+CH_m,0.04:CH_a-CH_m+CH_Z`,0.08:CH_n#-CH_o+CH_dz|,0.07:sp,0.00:
+J=5     S=3    E=6    a=-522.36   l=-4.788  d=:CH_dz-CH_n+CH_a,0.12:CH_n-CH_a+CH_m,0.04:CH_a-CH_m+CH_Z`,0.08:CH_n#-CH_o+CH_dz|,0.07:sp,0.00:
+J=6     S=4    E=6    a=-507.27   l=-4.804  d=:CH_dz-CH_n+CH_a,0.11:CH_n-CH_a+CH_m,0.04:CH_a-CH_m+CH_Z`,0.08:CH_n#-CH_o+CH_dz|,0.07:sp,0.00:
+J=7     S=5    E=7    a=-3797.36  l=-6.780  d=:CH_U`-CH_dz|+CH_l,0.09:CH_h-CH_y+CH_l,0.05:CH_i-CH_l+CH_E,0.04:CH_l-CH_i+CH_l,0.09:CH_i-CH_l+CH_dz|,0.05:CH_l-CH_a+CH_@,0.04:CH_a-CH_i+CH_dz|,0.07:CH_i-CH_dz|+CH_ts|,0.03:CH_dz|-CH_i+CH_a,0.07:CH_E-CH_a+CH_N#,0.05:EN_JH-CH_N#+CH_n,0.07:CH_N#-CH_n+CH_@`,0.07:CH_n-CH_@+EN_B,0.07:sil,1.12:
+J=8     S=6    E=7    a=-3797.36  l=-6.539  d=:CH_U`-CH_dz|+CH_l,0.09:CH_h-CH_y+CH_l,0.05:CH_i-CH_l+CH_E,0.04:CH_l-CH_i+CH_l,0.09:CH_i-CH_l+CH_dz|,0.05:CH_l-CH_a+CH_@,0.04:CH_a-CH_i+CH_dz|,0.07:CH_i-CH_dz|+CH_ts|,0.03:CH_dz|-CH_i+CH_a,0.07:CH_E-CH_a+CH_N#,0.05:EN_JH-CH_N#+CH_n,0.07:CH_N#-CH_n+CH_@`,0.07:CH_n-CH_@+EN_B,0.07:sil,1.12:
+J=9     S=7    E=8    a=-827.97   l=-2.683  d=:EN_AY-CH_Z`+CH_ts`,0.22:CH_m-CH_u+CH_g,0.03:CH_y-CH_g+CH_u,0.05:CH_g-CH_u+CH_o,0.03:EN_AO-CH_o+CH_n#,0.03:sp,0.02:
+J=10    S=8    E=9    a=-254.22   l=-2.393  d=:CH_o-CH_n+CH_i,0.07:CH_n-CH_i+CH_dz|,0.06:sp,0.00:
+J=11    S=8    E=10   a=-255.20   l=-2.393  d=:CH_o-CH_n+CH_i,0.07:CH_f-CH_i+CH_ts|,0.06:sp,0.00:
+J=12    S=9    E=11   a=-269.28   l=-8.869  d=:CH_i-CH_dz|+CH_ts|,0.08:CH_dz|-CH_i+CH_dz`,0.09:sp,0.00:
+J=13    S=9    E=12   a=-269.28   l=-8.022  d=:CH_i-CH_dz|+CH_ts|,0.08:CH_dz|-CH_i+CH_dz`,0.09:sp,0.00:
+J=14    S=9    E=13   a=-269.28   l=-11.472 d=:CH_i-CH_dz|+CH_ts|,0.08:CH_dz|-CH_i+CH_dz`,0.09:sp,0.00:
+J=15    S=9    E=14   a=-269.28   l=-10.373 d=:CH_i-CH_dz|+CH_ts|,0.08:CH_dz|-CH_i+CH_dz`,0.09:sp,0.00:
+J=16    S=9    E=15   a=-269.28   l=-10.373 d=:CH_i-CH_dz|+CH_ts|,0.08:CH_dz|-CH_i+CH_dz`,0.09:sp,0.00:
+J=17    S=9    E=16   a=-269.28   l=-12.165 d=:CH_i-CH_dz|+CH_ts|,0.08:CH_dz|-CH_i+CH_dz`,0.09:sp,0.00:
+J=18    S=9    E=17   a=-269.28   l=-12.165 d=:CH_i-CH_dz|+CH_ts|,0.08:CH_dz|-CH_i+CH_dz`,0.09:sp,0.00:
+J=19    S=9    E=18   a=-269.28   l=-11.066 d=:CH_i-CH_dz|+CH_ts|,0.08:CH_dz|-CH_i+CH_dz`,0.09:sp,0.00:
+J=20    S=10   E=19   a=-274.60   l=-11.066 d=:CH_i-CH_ts|+sil,0.09:CH_ts|-CH_i+CH_dz,0.08:sp,0.00:
+J=21    S=9    E=20   a=-269.28   l=-11.066 d=:CH_i-CH_dz|+CH_ts|,0.08:CH_dz|-CH_i+CH_dz`,0.09:sp,0.00:
+J=22    S=9    E=21   a=-269.28   l=-12.165 d=:CH_i-CH_dz|+CH_ts|,0.08:CH_dz|-CH_i+CH_dz`,0.09:sp,0.00:
+J=23    S=9    E=22   a=-269.28   l=-11.066 d=:CH_i-CH_dz|+CH_ts|,0.08:CH_dz|-CH_i+CH_dz`,0.09:sp,0.00:
+J=24    S=10   E=23   a=-274.60   l=-9.169  d=:CH_i-CH_ts|+sil,0.09:CH_ts|-CH_i+CH_dz,0.08:sp,0.00:
+J=25    S=10   E=24   a=-274.60   l=-9.862  d=:CH_i-CH_ts|+sil,0.09:CH_ts|-CH_i+CH_dz,0.08:sp,0.00:
+J=26    S=9    E=25   a=-269.28   l=-12.165 d=:CH_i-CH_dz|+CH_ts|,0.08:CH_dz|-CH_i+CH_dz`,0.09:sp,0.00:
+J=27    S=10   E=26   a=-274.60   l=-11.066 d=:CH_i-CH_ts|+sil,0.09:CH_ts|-CH_i+CH_dz,0.08:sp,0.00:
+J=28    S=9    E=27   a=-269.28   l=-11.066 d=:CH_i-CH_dz|+CH_ts|,0.08:CH_dz|-CH_i+CH_dz`,0.09:sp,0.00:
+J=29    S=9    E=28   a=-269.28   l=-12.165 d=:CH_i-CH_dz|+CH_ts|,0.08:CH_dz|-CH_i+CH_dz`,0.09:sp,0.00:
+J=30    S=10   E=29   a=-274.60   l=-11.472 d=:CH_i-CH_ts|+sil,0.09:CH_ts|-CH_i+CH_dz,0.08:sp,0.00:
+J=31    S=9    E=30   a=-269.28   l=-10.778 d=:CH_i-CH_dz|+CH_ts|,0.08:CH_dz|-CH_i+CH_dz`,0.09:sp,0.00:
+J=32    S=9    E=31   a=-269.28   l=-11.472 d=:CH_i-CH_dz|+CH_ts|,0.08:CH_dz|-CH_i+CH_dz`,0.09:sp,0.00:
+J=33    S=10   E=32   a=-274.60   l=-12.165 d=:CH_i-CH_ts|+sil,0.09:CH_ts|-CH_i+CH_dz,0.08:sp,0.00:
+J=34    S=9    E=33   a=-269.28   l=-12.165 d=:CH_i-CH_dz|+CH_ts|,0.08:CH_dz|-CH_i+CH_dz`,0.09:sp,0.00:
+J=35    S=11   E=34   a=-248.25   l=-4.448  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=36    S=12   E=35   a=-248.25   l=-10.639 d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=37    S=13   E=35   a=-248.25   l=-10.159 d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=38    S=14   E=35   a=-248.25   l=-10.223 d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=39    S=15   E=35   a=-248.25   l=-9.664  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=40    S=16   E=35   a=-248.25   l=-9.815  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=41    S=17   E=35   a=-248.25   l=-9.815  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=42    S=18   E=35   a=-248.25   l=-9.698  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=43    S=19   E=35   a=-248.25   l=-9.698  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=44    S=20   E=35   a=-248.25   l=-9.802  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=45    S=21   E=35   a=-248.25   l=-9.815  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=46    S=22   E=35   a=-248.25   l=-9.814  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=47    S=23   E=35   a=-248.25   l=-9.803  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=48    S=24   E=35   a=-248.25   l=-10.057 d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=49    S=25   E=35   a=-248.25   l=-9.814  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=50    S=26   E=35   a=-248.25   l=-10.014 d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=51    S=27   E=35   a=-248.25   l=-10.014 d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=52    S=28   E=35   a=-248.25   l=-9.815  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=53    S=29   E=35   a=-248.25   l=-9.708  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=54    S=30   E=35   a=-248.25   l=-10.583 d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=55    S=31   E=35   a=-248.25   l=-9.815  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=56    S=32   E=35   a=-248.25   l=-9.815  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=57    S=33   E=35   a=-248.25   l=-9.436  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=58    S=11   E=36   a=-248.25   l=-8.238  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=59    S=12   E=36   a=-248.25   l=-8.847  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=60    S=14   E=36   a=-248.25   l=-8.431  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=61    S=15   E=36   a=-248.25   l=-7.872  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=62    S=18   E=36   a=-248.25   l=-7.906  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=63    S=20   E=36   a=-248.25   l=-8.010  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=64    S=22   E=36   a=-248.25   l=-8.022  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=65    S=23   E=36   a=-248.25   l=-8.011  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=66    S=27   E=36   a=-248.25   l=-8.222  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=67    S=11   E=37   a=-248.25   l=-8.680  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=68    S=12   E=37   a=-248.25   l=-9.289  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=69    S=15   E=37   a=-248.25   l=-8.314  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=70    S=11   E=38   a=-248.25   l=-8.238  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=71    S=12   E=38   a=-248.25   l=-8.847  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=72    S=14   E=38   a=-248.25   l=-8.431  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=73    S=15   E=38   a=-248.25   l=-7.872  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=74    S=18   E=38   a=-248.25   l=-7.906  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_m,0.07:sp,0.00:
+J=75    S=11   E=39   a=-282.26   l=-4.448  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_#,0.06:sil,0.02:
+J=76    S=12   E=40   a=-282.26   l=-10.639 d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_#,0.06:sil,0.02:
+J=77    S=15   E=40   a=-282.26   l=-9.664  d=:CH_i-CH_dz`+CH_E,0.07:CH_b-CH_U+CH_#,0.06:sil,0.02:
+J=78    S=34   E=41   a=-971.91   l=-1.990  d=:CH_U`-CH_m+CH_N#,0.05:CH_m-CH_a+CH_@`,0.08:CH_E-CH_i+CH_g,0.05:CH_i-CH_k+CH_@,0.04:CH_k-CH_@+CH_s`,0.09:EN_W-CH_f+CH_@,0.07:CH_f-CH_@+CH_N#,0.08:CH_E-CH_N#+EN_B,0.07:
+J=79    S=35   E=41   a=-971.91   l=-1.420  d=:CH_U`-CH_m+CH_N#,0.05:CH_m-CH_a+CH_@`,0.08:CH_E-CH_i+CH_g,0.05:CH_i-CH_k+CH_@,0.04:CH_k-CH_@+CH_s`,0.09:EN_W-CH_f+CH_@,0.07:CH_f-CH_@+CH_N#,0.08:CH_E-CH_N#+EN_B,0.07:
+J=80    S=39   E=41   a=-957.65   l=-1.990  d=:EN_T-CH_m+CH_a,0.04:CH_m-CH_a+CH_@`,0.08:CH_E-CH_i+CH_g,0.05:CH_i-CH_k+CH_@,0.04:CH_k-CH_@+CH_s`,0.09:EN_W-CH_f+CH_@,0.07:CH_f-CH_@+CH_N#,0.08:CH_E-CH_N#+EN_B,0.07:
+J=81    S=40   E=41   a=-957.65   l=-1.420  d=:EN_T-CH_m+CH_a,0.04:CH_m-CH_a+CH_@`,0.08:CH_E-CH_i+CH_g,0.05:CH_i-CH_k+CH_@,0.04:CH_k-CH_@+CH_s`,0.09:EN_W-CH_f+CH_@,0.07:CH_f-CH_@+CH_N#,0.08:CH_E-CH_N#+EN_B,0.07:
+J=82    S=36   E=42   a=-971.91   l=-8.825  d=:CH_U`-CH_m+CH_N#,0.05:CH_m-CH_a+CH_@`,0.08:CH_E-CH_i+CH_g,0.05:CH_i-CH_k+CH_@,0.04:CH_k-CH_@+CH_s`,0.09:EN_W-CH_f+CH_@,0.07:CH_f-CH_@+CH_N#,0.08:CH_E-CH_N#+EN_B,0.07:
+J=83    S=37   E=42   a=-971.91   l=-9.199  d=:CH_U`-CH_m+CH_N#,0.05:CH_m-CH_a+CH_@`,0.08:CH_E-CH_i+CH_g,0.05:CH_i-CH_k+CH_@,0.04:CH_k-CH_@+CH_s`,0.09:EN_W-CH_f+CH_@,0.07:CH_f-CH_@+CH_N#,0.08:CH_E-CH_N#+EN_B,0.07:
+J=84    S=38   E=42   a=-971.91   l=-9.162  d=:CH_U`-CH_m+CH_N#,0.05:CH_m-CH_a+CH_@`,0.08:CH_E-CH_i+CH_g,0.05:CH_i-CH_k+CH_@,0.04:CH_k-CH_@+CH_s`,0.09:EN_W-CH_f+CH_@,0.07:CH_f-CH_@+CH_N#,0.08:CH_E-CH_N#+EN_B,0.07:
+J=85    S=41   E=43   a=-0.00     l=-2.709  d=:sil,0.02:
+J=86    S=42   E=43   a=0.00      l=-2.603  d=:sil,0.02:
